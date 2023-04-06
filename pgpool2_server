@@ -1,0 +1,65 @@
+apt update -y
+apt upgrade -y
+echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+apt-get -y install pgpool2 libpgpool2 postgresql-12-*
+apt-get -y install pgpool2
+cd /etc/pgpool2/
+cp -r pgpool.conf pgpool.conf_bkup
+
+//
+ nano /etc/netplan/eth1.yaml
+ netplan apply
+ 
+ //setup pgpool2
+ nano /etc/pgpool2/pgpool.conf
+ 
+ 
+ --
+ ## Connection Details
+
+listen_addresses='*'
+port=9999
+socket_dir = '/var/run/postgresql'
+
+## Backend Server Details
+
+# Primary
+
+backend_hostname0 = '10.10.0.2'
+backend_port0 = 5432
+backend_weight0 = 1
+
+# Secondary
+
+backend_hostname1 = '10.10.0.3'
+backend_port1 = 5432
+backend_weight1 = 1
+
+
+## Load Balancing
+
+load_balance_mode = 'ON'
+
+## Replication Responsibilty
+
+master_slave_mode = 'ON'
+master_slave_sub_mode = 'stream'
+
+## Streaming checks
+
+sr_check_period = 10
+sr_check_user = 'monitor'
+sr_check_password = 'Monitor@321'
+sr_check_database = 'monitor'
+delay_threshold = 10240
+
+## Client Authentication
+
+allow_clear_text_frontend_auth = ‘ON’
+
+log_destination = 'syslog'
+--
+systemctl restart pgpool2
+
+psql -h localhost -Uappuser -p 9999 postgres
