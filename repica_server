@@ -1,0 +1,16 @@
+apt update -y
+apt upgrade -y
+apt -y install postgresql-12 postgresql-client-12
+
+//add ip private
+nano /etc/netplan/eth1.yaml
+netplan apply
+
+#IP: 10.10.0.1 is pgpool2 server, user need check
+psql -h 10.10.0.1 -Uappuser -p 9999 postgres  -c "show pool_nodes"
+
+rm -rf /var/lib/postgresql/12/main/
+pg_basebackup -h 10.10.0.2 -U replicator -D /var/lib/postgresql/12/main/ --write-recovery-conf --progress --verbose
+chmod -R 0700 /var/lib/postgresql/12/main/
+chown -R postgres:postgres /var/lib/postgresql/12/main/
+service postgresql restart
