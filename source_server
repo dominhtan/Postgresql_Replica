@@ -1,0 +1,9 @@
+apt upgrade -y
+apt upgrade -y
+apt -y install postgresql-12 postgresql-client-12
+
+//Add IP Private
+nano /etc/netplan/eth1.yaml
+netplan apply
+
+psql -h 10.10.0.1 -Uappuser -p 9999 postgres  -c "select datname from pg_database"
