@@ -63,3 +63,5 @@ log_destination = 'syslog'
 systemctl restart pgpool2
 
 psql -h localhost -Uappuser -p 9999 postgres
+
+psql -h 10.10.0.1 -p 9999 -c "show pool_nodes" postgres
